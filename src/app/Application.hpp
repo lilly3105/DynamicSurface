@@ -1,8 +1,11 @@
 #pragma once
 
 #include <QApplication>
-#include <QQmlApplicationEngine>
 #include <QThread>
+
+#include "SurfaceViewModel.hpp"
+
+class MainWindow;
 
 class Application {
 public:
@@ -16,6 +19,7 @@ private:
   void initOSG();
 
   QApplication app_;
-  QQmlApplicationEngine engine_;
   QThread renderThread_;
+  std::unique_ptr<MainWindow> mainWindow_;
+  SurfaceViewModel viewModel_;
 };
