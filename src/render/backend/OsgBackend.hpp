@@ -1,8 +1,10 @@
-#ifndef OSGBACKEND_HPP
-#define OSGBACKEND_HPP
+#pragma once
+
 #include "IRenderBackend.hpp"
 
 #include <osg/ref_ptr>
+
+class Model;
 
 namespace osg {
 class Group;
@@ -22,11 +24,9 @@ public:
   void shutdown() override;
   bool done() const override;
 
-  [[nodiscard]] osg::ref_ptr<osg::Group> &root();
-
 private:
   osg::ref_ptr<osgViewer::Viewer> viewer_;
   osg::ref_ptr<osg::Group> root_;
-};
 
-#endif // OSGBACKEND_HPP
+  osg::ref_ptr<Model> model_;
+};

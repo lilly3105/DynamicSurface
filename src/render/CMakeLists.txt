@@ -2,6 +2,9 @@ qt_add_library(${PROJECT_NAME}_render
     STATIC 
         RenderWorker.cpp
         backend/OsgBackend.cpp
+        model/Model.cpp
+        model/ModelUpdateCallback.cpp
+        model/SurfaceCompute.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_render 
