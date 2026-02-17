@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            ninja-build \
+            cmake \
+            clang \
+            build-essential \
+            libopenscenegraph-dev
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: 6.4.2
+
+      - name: Configure
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Install
+        run: cmake --install build --prefix install
+
+      - name: Package
+        run: |
+          tar -czf DynamicSurface-linux.tar.gz -C install .
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: DynamicSurface-linux.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---- vcpkg ----
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 3f2e4c7a1b0d3f5c1e2f3a4b5c6d7e8f9a0b1c2d
+
+      - name: Install dependencies (vcpkg)
+        run: |
+          vcpkg install osg
+
+      # ---- Qt ----
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: 6.4.2
+          arch: win64_msvc2019_64
+
+      - name: Configure
+        run: |
+          cmake -B build `
+            -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake `
+            -DCMAKE_PREFIX_PATH=%CMAKE_PREFIX_PATH%
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Install
+        run: cmake --install build --config Release --prefix install
+
+      # ---- Qt deploy ----
+      - name: Deploy Qt
+        run: |
+          windeployqt install/bin/*.exe
+
+      - name: Package
+        run: |
+          powershell Compress-Archive -Path install\* -DestinationPath DynamicSurface-windows.zip
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: DynamicSurface-windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
