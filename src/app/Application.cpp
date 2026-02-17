@@ -7,7 +7,6 @@
 #include <qapplication.h>
 #include <qnamespace.h>
 #include <qthread.h>
-#include <QQmlContext>
 
 Application::Application(int argc, char **argv) : app_(argc, argv) {
     initQt();

@@ -8,7 +8,6 @@ target_link_libraries(${PROJECT_NAME}_app
     PRIVATE
         Qt6::Core
         Qt6::Widgets
-        Qt6::Qml
         ${PROJECT_NAME}_ui
         ${PROJECT_NAME}_render
 )
